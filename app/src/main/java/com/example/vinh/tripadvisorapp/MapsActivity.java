@@ -1,16 +1,25 @@
 package com.example.vinh.tripadvisorapp;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends ActionBarActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
 
@@ -39,8 +48,67 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+        LatLng hcmus = new LatLng(10.762984, 106.692329);
+        mMap.addMarker(new MarkerOptions()
+                .position(hcmus)
+                .title(getString(R.string.khtn)));
+
+
+        LatLng benthanh = new LatLng(10.7725276,106.697114);
+        mMap.addMarker(new MarkerOptions()
+                .position(benthanh)
+                .title(getString(R.string.benthanh)));
+
+
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hcmus, 15));
+
+
+        // set current position
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mMap.setMyLocationEnabled(true);
+    }
+
+
+    // action bar
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.add:
+                Toast.makeText(this, R.string.about_toast, Toast.LENGTH_LONG).show();
+                return(true);
+            case R.id.reset:
+                Toast.makeText(this, R.string.about_toast, Toast.LENGTH_LONG).show();
+                return(true);
+            case R.id.about:
+                Toast.makeText(this, R.string.about_toast, Toast.LENGTH_LONG).show();
+                return(true);
+            case R.id.exit:
+                finish();
+                return(true);
+
+        }
+        return(super.onOptionsItemSelected(item));
     }
 }
