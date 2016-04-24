@@ -68,7 +68,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
 
         // Add a marker in Sydney and move the camera
 
-        LatLng hcmus = new LatLng(10.762984, 106.692329);
+        LatLng hcmus = new LatLng(10.777234, 106.695505);
         markerHcmus = mMap.addMarker(new MarkerOptions()
                 .position(hcmus)
                 .title(getString(R.string.khtn)));

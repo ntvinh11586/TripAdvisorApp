@@ -22,6 +22,11 @@
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/independence_palace"/>
+
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
@@ -39,8 +44,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
-        android:src="@android:drawable/ic_dialog_email"
+        android:src="@android:drawable/ic_menu_call"
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom|end" />
+
 
 </android.support.design.widget.CoordinatorLayout>
