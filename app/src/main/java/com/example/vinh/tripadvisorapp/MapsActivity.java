@@ -1,7 +1,10 @@
 package com.example.vinh.tripadvisorapp;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -17,15 +20,29 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends ActionBarActivity implements OnMapReadyCallback {
+public class MapsActivity extends ActionBarActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
+    private Marker markerHcmus;
+
+    @Override
+    public boolean onMarkerClick(final Marker marker) {
+
+        if (marker.equals(markerHcmus))
+        {
+            Intent intent = new Intent(this, LocationDetailActivity.class);
+            startActivity(intent);
+            finish();
+        }
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+            super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -43,6 +60,8 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -50,17 +69,18 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         // Add a marker in Sydney and move the camera
 
         LatLng hcmus = new LatLng(10.762984, 106.692329);
-        mMap.addMarker(new MarkerOptions()
+        markerHcmus = mMap.addMarker(new MarkerOptions()
                 .position(hcmus)
                 .title(getString(R.string.khtn)));
 
-
+        /*
         LatLng benthanh = new LatLng(10.7725276,106.697114);
         mMap.addMarker(new MarkerOptions()
                 .position(benthanh)
                 .title(getString(R.string.benthanh)));
+        */
 
-
+        googleMap.setOnMarkerClickListener(this);
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hcmus, 15));
 
@@ -81,6 +101,8 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
             return;
         }
         mMap.setMyLocationEnabled(true);
+
+
     }
 
 
