@@ -1,18 +1,17 @@
 package com.example.vinh.tripadvisorapp;
 
 import android.Manifest;
-import android.app.SearchManager;
-import android.content.Context;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -24,16 +23,41 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
-public class MapsActivity extends ActionBarActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+
+import Modules.DirectionFinder;
+import Modules.DirectionFinderListener;
+import Modules.Route;
+
+public class MapsActivity extends ActionBarActivity
+        implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, DirectionFinderListener {
 
     private GoogleMap mMap;
     private Marker markerHcmus;
     private LinearLayout findPathLayoutAddress;
     private LinearLayout findPathLayoutInfo;
+
+    EditText etOrigin;
+    EditText etDestination;
+    Button btnFindPath;
+    TextView tvDistance;
+    TextView tvDuration;
+
+    private List<Marker> originMarkers = new ArrayList<>();
+    private List<Marker> destinationMarkers = new ArrayList<>();
+    private List<Polyline> polylinePaths = new ArrayList<>();
+    private ProgressDialog progressDialog;
+
+    private int SEARCH_RESULT = 0;
 
     private void createFindPathLayout() {
         LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(
@@ -46,20 +70,20 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         ///
         findPathLayoutAddress = (LinearLayout) findViewById(R.id.find_patch_layout_address);
 
-        EditText etOrigin = new EditText(this);
+        etOrigin = new EditText(this);
         etOrigin.setHint("Enter origin address");
         etOrigin.setLayoutParams(params1);
         findPathLayoutAddress.addView(etOrigin);
 
-        EditText eDestination = new EditText(this);
-        eDestination.setHint("Enter destination address");
-        eDestination.setLayoutParams(params1);
-        findPathLayoutAddress.addView(eDestination);
+        etDestination = new EditText(this);
+        etDestination.setHint("Enter destination address");
+        etDestination.setLayoutParams(params1);
+        findPathLayoutAddress.addView(etDestination);
 
         ///
         findPathLayoutInfo = (LinearLayout) findViewById(R.id.find_patch_layout_info);
 
-        Button btnFindPath = new Button(this);
+        btnFindPath = new Button(this);
         btnFindPath.setText("Find path");
         btnFindPath.setLayoutParams(params2);
         findPathLayoutInfo.addView(btnFindPath);
@@ -72,7 +96,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         ivDistance.setLayoutParams(params2);
         findPathLayoutInfo.addView(ivDistance);
 
-        TextView tvDistance = new TextView(this);
+        tvDistance = new TextView(this);
         tvDistance.setText("0 km");
         tvDistance.setLayoutParams(params2);
         findPathLayoutInfo.addView(tvDistance);
@@ -85,10 +109,17 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         ivClock.setLayoutParams(params2);
         findPathLayoutInfo.addView(ivClock);
 
-        TextView tvDuration = new TextView(this);
+        tvDuration = new TextView(this);
         tvDuration.setText("0 min");
         tvDuration.setLayoutParams(params2);
         findPathLayoutInfo.addView(tvDuration);
+
+        btnFindPath.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendRequest();
+            }
+        });
     }
 
     @Override
@@ -99,6 +130,9 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
+
     }
 
 
@@ -180,8 +214,9 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
                 return(true);
             case R.id.reset:
                 Intent intent = new Intent(this, SearchingResultActivity.class);
-                startActivity(intent);
-                finish();
+                //startActivity(intent);
+                startActivityForResult(intent, SEARCH_RESULT);
+                //finish();
 
                 //Toast.makeText(this, "reset", Toast.LENGTH_LONG).show();
                 return(true);
@@ -207,5 +242,96 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
             finish();
         }
         return true;
+    }
+
+    // receive data from another activity
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK && requestCode == SEARCH_RESULT) {
+            String kq = data.getStringExtra("locationName").toString();
+            Toast.makeText(getApplicationContext(), kq, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+
+
+    // find path
+    private void sendRequest() {
+        String origin = etOrigin.getText().toString();
+        String destination = etDestination.getText().toString();
+        if (origin.isEmpty()) {
+            Toast.makeText(this, "Please enter origin address!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (destination.isEmpty()) {
+            Toast.makeText(this, "Please enter destination address!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            new DirectionFinder(this, origin, destination).execute();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onDirectionFinderStart() {
+        progressDialog = ProgressDialog.show(this, "Please wait.",
+                "Finding direction..!", true);
+
+        if (originMarkers != null) {
+            for (Marker marker : originMarkers) {
+                marker.remove();
+            }
+        }
+
+        if (destinationMarkers != null) {
+            for (Marker marker : destinationMarkers) {
+                marker.remove();
+            }
+        }
+
+        if (polylinePaths != null) {
+            for (Polyline polyline:polylinePaths ) {
+                polyline.remove();
+            }
+        }
+    }
+
+    @Override
+    public void onDirectionFinderSuccess(List<Route> routes) {
+        progressDialog.dismiss();
+        polylinePaths = new ArrayList<>();
+        originMarkers = new ArrayList<>();
+        destinationMarkers = new ArrayList<>();
+
+        for (Route route : routes) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(route.startLocation, 16));
+            tvDuration.setText(route.duration.text);
+            tvDistance.setText(route.distance.text);
+
+            originMarkers.add(mMap.addMarker(new MarkerOptions()
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue))
+                    .title(route.startAddress)
+                    .position(route.startLocation)));
+            destinationMarkers.add(mMap.addMarker(new MarkerOptions()
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green))
+                    .title(route.endAddress)
+                    .position(route.endLocation)));
+
+            PolylineOptions polylineOptions = new PolylineOptions().
+                    geodesic(true).
+                    color(Color.BLUE).
+                    width(10);
+
+            for (int i = 0; i < route.points.size(); i++)
+                polylineOptions.add(route.points.get(i));
+
+            polylinePaths.add(mMap.addPolyline(polylineOptions));
+        }
     }
 }
