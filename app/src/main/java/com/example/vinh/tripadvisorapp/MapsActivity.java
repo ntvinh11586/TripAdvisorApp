@@ -1,16 +1,22 @@
 package com.example.vinh.tripadvisorapp;
 
 import android.Manifest;
-import android.app.Activity;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,7 +24,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -27,17 +32,63 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     private GoogleMap mMap;
     private Marker markerHcmus;
+    private LinearLayout findPathLayoutAddress;
+    private LinearLayout findPathLayoutInfo;
 
-    @Override
-    public boolean onMarkerClick(final Marker marker) {
+    private void createFindPathLayout() {
+        LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(
+                ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(
+                ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT);
+        params2.setMargins(20, 5, 0, 0);
 
-        if (marker.equals(markerHcmus))
-        {
-            Intent intent = new Intent(this, LocationDetailActivity.class);
-            startActivity(intent);
-            finish();
-        }
-        return true;
+
+        ///
+        findPathLayoutAddress = (LinearLayout) findViewById(R.id.find_patch_layout_address);
+
+        EditText etOrigin = new EditText(this);
+        etOrigin.setHint("Enter origin address");
+        etOrigin.setLayoutParams(params1);
+        findPathLayoutAddress.addView(etOrigin);
+
+        EditText eDestination = new EditText(this);
+        eDestination.setHint("Enter destination address");
+        eDestination.setLayoutParams(params1);
+        findPathLayoutAddress.addView(eDestination);
+
+        ///
+        findPathLayoutInfo = (LinearLayout) findViewById(R.id.find_patch_layout_info);
+
+        Button btnFindPath = new Button(this);
+        btnFindPath.setText("Find path");
+        btnFindPath.setLayoutParams(params2);
+        findPathLayoutInfo.addView(btnFindPath);
+
+        ImageView ivDistance = new ImageView(this);
+        ivDistance.setImageResource(R.drawable.ic_distance);
+        ivDistance.setAdjustViewBounds(true);
+        ivDistance.setMaxWidth(80);
+        ivDistance.setMaxHeight(80);
+        ivDistance.setLayoutParams(params2);
+        findPathLayoutInfo.addView(ivDistance);
+
+        TextView tvDistance = new TextView(this);
+        tvDistance.setText("0 km");
+        tvDistance.setLayoutParams(params2);
+        findPathLayoutInfo.addView(tvDistance);
+
+        ImageView ivClock = new ImageView(this);
+        ivClock.setImageResource(R.drawable.ic_clock);
+        ivClock.setAdjustViewBounds(true);
+        ivClock.setMaxWidth(80);
+        ivClock.setMaxHeight(80);
+        ivClock.setLayoutParams(params2);
+        findPathLayoutInfo.addView(ivClock);
+
+        TextView tvDuration = new TextView(this);
+        tvDuration.setText("0 min");
+        tvDuration.setLayoutParams(params2);
+        findPathLayoutInfo.addView(tvDuration);
     }
 
     @Override
@@ -51,19 +102,12 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
     }
 
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
-
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
+
+
+
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
@@ -81,6 +125,18 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         */
 
         googleMap.setOnMarkerClickListener(this);
+
+
+        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+
+            @Override
+            public void onMapClick(LatLng arg0) {
+                findPathLayoutAddress.removeAllViews();
+                findPathLayoutInfo.removeAllViews();
+            }
+        });
+
+
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hcmus, 15));
 
@@ -102,6 +158,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         }
         mMap.setMyLocationEnabled(true);
 
+        //createFindPathLayout();
 
     }
 
@@ -111,6 +168,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        
         return true;
     }
 
@@ -118,13 +176,17 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.add:
-                Toast.makeText(this, R.string.about_toast, Toast.LENGTH_LONG).show();
+                createFindPathLayout();
                 return(true);
             case R.id.reset:
-                Toast.makeText(this, R.string.about_toast, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(this, SearchingResultActivity.class);
+                startActivity(intent);
+                finish();
+
+                //Toast.makeText(this, "reset", Toast.LENGTH_LONG).show();
                 return(true);
             case R.id.about:
-                Toast.makeText(this, R.string.about_toast, Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "about", Toast.LENGTH_LONG).show();
                 return(true);
             case R.id.exit:
                 finish();
@@ -132,5 +194,18 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
 
         }
         return(super.onOptionsItemSelected(item));
+    }
+
+    // Handle marker click
+    @Override
+    public boolean onMarkerClick(final Marker marker) {
+
+        if (marker.equals(markerHcmus))
+        {
+            Intent intent = new Intent(this, LocationDetailActivity.class);
+            startActivity(intent);
+            finish();
+        }
+        return true;
     }
 }
