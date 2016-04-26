@@ -25,7 +25,6 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/text_margin"
             android:layout_marginRight="@dimen/text_margin"
-            android:text="135 Nam Kỳ Khởi Nghĩa, Bến Thành, Quận 1, Hồ Chí Minh, Vietnam"
             android:id="@+id/textAddress" />
 
         <TextView
@@ -40,7 +39,6 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/text_margin"
             android:layout_marginRight="@dimen/text_margin"
-            android:text="http://www.dinhdoclap.gov.vn/"
             android:id="@+id/textHttp" />
 
         <TextView
@@ -55,7 +53,6 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/text_margin"
             android:layout_marginRight="@dimen/text_margin"
-            android:text="Independence Palace (Dinh Độc Lập), also known as Reunification Palace (Vietnamese: Dinh Thống Nhất), built on the site of the former Norodom Palace, is a landmark in Ho Chi Minh City, Vietnam. It was designed by architect Ngô Viết Thụ and was the home and workplace of the President of South Vietnam during the Vietnam War. It was the site of the end of the Vietnam War during the Fall of Saigon on April 30, 1975, when a North Vietnamese Army tank crashed through its gates."
             android:id="@+id/textDescription" />
 
         <TextView

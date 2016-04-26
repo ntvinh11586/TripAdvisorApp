@@ -10,8 +10,6 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
 
@@ -49,7 +47,7 @@
         </activity>
         <activity
             android:name=".LocationDetailActivity"
-            android:label="@string/title_activity_location_detail"
+            android:label=""
             android:theme="@style/AppTheme.NoActionBar" />
 
         <intent-filter>
@@ -62,7 +60,8 @@
             android:name="android.app.searchable"
             android:resource="@xml/searchable" />
 
-        <activity android:name=".SearchingResultActivity"></activity>
+        <activity android:name=".SearchingResultActivity"
+            android:label="Searching Location"></activity>
     </application>
 
 </manifest>

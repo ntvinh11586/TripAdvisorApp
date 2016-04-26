@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 public class SearchingResultActivity extends AppCompatActivity {
 
-    String [] aPlace = {"Ben Thanh market", "Dragon Wharf", "Independence Palace",
+    String [] aPlace = {"Ben Thanh Market", "Dragon Wharf", "Independence Palace",
             "Notre-Dame Cathedral Basilica of Saigon", "Saigon Zoo"};
 
     @Override

@@ -33,7 +33,9 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
+import DataPack.LocationItem;
 import Modules.DirectionFinder;
 import Modules.DirectionFinderListener;
 import Modules.Route;
@@ -58,6 +60,47 @@ public class MapsActivity extends ActionBarActivity
     private ProgressDialog progressDialog;
 
     private int SEARCH_RESULT = 0;
+    private String INFORMATION_DETAIL_NAME = "1";
+    private String INFORMATION_DETAIL_ADDRESS = "2";
+    private String INFORMATION_DETAIL_WEBSITE = "3";
+    private String INFORMATION_DETAIL_DESCRIPTION = "4";
+    private String INFORMATION_DETAIL_PHONE = "5";
+    private String INFORMATION_DETAIL_X = "6";
+    private String INFORMATION_DETAIL_Y = "7";
+    private String INFORMATION_DETAIL_INDEX = "8";
+
+
+    private int numLocation = 0;
+    private LocationItem aLocationItem[];
+    private Marker aLocationMarker[];
+
+    private void readInputData() {
+        Scanner scan = new Scanner(
+                getResources().openRawResource(R.raw.list_location));
+
+
+        numLocation = Integer.parseInt(scan.nextLine());
+
+
+        aLocationItem = new LocationItem[numLocation];
+
+
+        for (int i = 0; i < numLocation; i++) {
+            aLocationItem[i] = new LocationItem(
+                    scan.nextLine(),
+                    scan.nextLine(),
+                    scan.nextLine(),
+                    scan.nextLine(),
+                    scan.nextLine(),
+                    Float.parseFloat(scan.nextLine()),
+                    Float.parseFloat(scan.nextLine())
+                    );
+        }
+
+        scan.close();
+    }
+
+
 
     private void createFindPathLayout() {
         LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(
@@ -66,22 +109,25 @@ public class MapsActivity extends ActionBarActivity
                 ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT);
         params2.setMargins(20, 5, 0, 0);
 
-
         ///
         findPathLayoutAddress = (LinearLayout) findViewById(R.id.find_patch_layout_address);
+        findPathLayoutInfo = (LinearLayout) findViewById(R.id.find_patch_layout_info);
+
+        findPathLayoutAddress.removeAllViews();
+        findPathLayoutInfo.removeAllViews();
 
         etOrigin = new EditText(this);
-        etOrigin.setHint("Enter origin address");
+        etOrigin.setHint("Origin address (limit location)");
         etOrigin.setLayoutParams(params1);
         findPathLayoutAddress.addView(etOrigin);
 
         etDestination = new EditText(this);
-        etDestination.setHint("Enter destination address");
+        etDestination.setHint("Destination address (limit location)");
         etDestination.setLayoutParams(params1);
         findPathLayoutAddress.addView(etDestination);
 
         ///
-        findPathLayoutInfo = (LinearLayout) findViewById(R.id.find_patch_layout_info);
+
 
         btnFindPath = new Button(this);
         btnFindPath.setText("Find path");
@@ -130,36 +176,29 @@ public class MapsActivity extends ActionBarActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
-
     }
 
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-
-
+        readInputData();
 
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
 
-        LatLng hcmus = new LatLng(10.777234, 106.695505);
-        markerHcmus = mMap.addMarker(new MarkerOptions()
-                .position(hcmus)
-                .title(getString(R.string.khtn)));
+        aLocationMarker = new Marker[numLocation];
+        for (int i = 0; i < numLocation; i++) {
+            Marker m = mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(
+                                aLocationItem[i].mX, aLocationItem[i].mY))
+                        );
+            aLocationMarker[i] = m;
+        }
 
-        /*
-        LatLng benthanh = new LatLng(10.7725276,106.697114);
-        mMap.addMarker(new MarkerOptions()
-                .position(benthanh)
-                .title(getString(R.string.benthanh)));
-        */
 
         googleMap.setOnMarkerClickListener(this);
-
 
         googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
@@ -170,10 +209,10 @@ public class MapsActivity extends ActionBarActivity
             }
         });
 
-
-
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hcmus, 15));
-
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(
+                aLocationItem[0].mX,
+                aLocationItem[0].mY),
+                15));
 
         // set current position
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -191,9 +230,6 @@ public class MapsActivity extends ActionBarActivity
             return;
         }
         mMap.setMyLocationEnabled(true);
-
-        //createFindPathLayout();
-
     }
 
 
@@ -202,7 +238,7 @@ public class MapsActivity extends ActionBarActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        
+
         return true;
     }
 
@@ -235,12 +271,21 @@ public class MapsActivity extends ActionBarActivity
     @Override
     public boolean onMarkerClick(final Marker marker) {
 
-        if (marker.equals(markerHcmus))
-        {
-            Intent intent = new Intent(this, LocationDetailActivity.class);
-            startActivity(intent);
-            finish();
-        }
+        for (int i = 0; i < numLocation; i++)
+            if (marker.equals(aLocationMarker[i]))
+            {
+                Intent intent = new Intent(this, LocationDetailActivity.class);
+
+                intent.putExtra(INFORMATION_DETAIL_NAME, aLocationItem[i].mName);
+                intent.putExtra(INFORMATION_DETAIL_ADDRESS, aLocationItem[i].mAddress);
+                intent.putExtra(INFORMATION_DETAIL_WEBSITE, aLocationItem[i].mWebsite);
+                intent.putExtra(INFORMATION_DETAIL_DESCRIPTION, aLocationItem[i].mDescription);
+                intent.putExtra(INFORMATION_DETAIL_PHONE, aLocationItem[i].mPhone);
+                intent.putExtra(INFORMATION_DETAIL_X, aLocationItem[i].mX);
+                intent.putExtra(INFORMATION_DETAIL_Y, aLocationItem[i].mY);
+                intent.putExtra(INFORMATION_DETAIL_INDEX, i);
+                startActivity(intent);
+            }
         return true;
     }
 
@@ -252,10 +297,14 @@ public class MapsActivity extends ActionBarActivity
         if (resultCode == RESULT_OK && requestCode == SEARCH_RESULT) {
             String kq = data.getStringExtra("locationName").toString();
             Toast.makeText(getApplicationContext(), kq, Toast.LENGTH_SHORT).show();
+
+            for (int i = 0; i < numLocation; i++)
+                if (aLocationItem[i].mName.equals(kq))
+                    mMap.moveCamera(CameraUpdateFactory
+                        .newLatLngZoom(new LatLng(aLocationItem[i].mX,
+                                aLocationItem[i].mY), 15));
         }
     }
-
-
 
 
     // find path

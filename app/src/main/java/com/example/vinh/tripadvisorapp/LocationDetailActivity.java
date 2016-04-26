@@ -15,7 +15,10 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Gallery;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import DataPack.LocationItem;
 
 public class LocationDetailActivity extends AppCompatActivity {
 
@@ -23,12 +26,20 @@ public class LocationDetailActivity extends AppCompatActivity {
     Integer[] imageIDs = {
             R.drawable.pic1,
             R.drawable.pic2,
-            R.drawable.pic3,
-            R.drawable.pic4,
-            R.drawable.pic5,
-            R.drawable.pic6,
-            R.drawable.pic7
+            R.drawable.pic3
     };
+
+    private String INFORMATION_DETAIL_NAME = "1";
+    private String INFORMATION_DETAIL_ADDRESS = "2";
+    private String INFORMATION_DETAIL_WEBSITE = "3";
+    private String INFORMATION_DETAIL_DESCRIPTION = "4";
+    private String INFORMATION_DETAIL_PHONE = "5";
+    private String INFORMATION_DETAIL_X = "6";
+    private String INFORMATION_DETAIL_Y = "7";
+    private String INFORMATION_DETAIL_INDEX = "8";
+
+    private LocationItem aLocationItem[];
+    private int index;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,12 +48,29 @@ public class LocationDetailActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //aLocationItem = (LocationItem[])getIntent().getExtras().get(INFORMATION_DETAIL);
+        //index = getIntent().getExtras().getInt(INFORMATION_DETAIL);
+
+        setTitle(getIntent().getExtras().getString(INFORMATION_DETAIL_NAME));
+        TextView tvAddress = (TextView)findViewById(R.id.textAddress);
+        TextView tvWebsite = (TextView)findViewById(R.id.textHttp);
+        TextView tvDescription = (TextView)findViewById(R.id.textDescription);
+
+        index = getIntent().getExtras().getInt(INFORMATION_DETAIL_INDEX);
+
+        //tvTitle.setText(getIntent().getExtras().getString(INFORMATION_DETAIL_NAME));
+        tvAddress.setText(getIntent().getExtras().getString(INFORMATION_DETAIL_ADDRESS));
+        tvWebsite.setText(getIntent().getExtras().getString(INFORMATION_DETAIL_WEBSITE));
+        tvDescription.setText(getIntent().getExtras().getString(INFORMATION_DETAIL_DESCRIPTION));
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // make a phone call
-                Uri number = Uri.parse("tel:+84838223652");
+                String tel = "tel:"
+                        + getIntent().getExtras().getString(INFORMATION_DETAIL_PHONE);
+                Uri number = Uri.parse(tel);
                 Intent callIntent = new Intent(Intent.ACTION_DIAL, number);
                 startActivity(callIntent);
             }
