@@ -1,2 +1,2 @@
-# TripAdvisorApp
-My mini project in CTT535 - Mobile Development
+# TripAdvisors
+Mini project in CTT535
